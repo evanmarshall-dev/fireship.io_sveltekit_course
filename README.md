@@ -135,7 +135,9 @@ The `lib` dir is also special in svelte because it is auto mapped to a `$` ($lib
 For example:
 
 ```svelte
-import {(user, userData)} from "$lib/firebase"
+<script>
+	import { user, userData } from '$lib/firebase';
+</script>
 ```
 
 It will be used to add reusable utilities and components that aren't tied to a specific route in the app.
