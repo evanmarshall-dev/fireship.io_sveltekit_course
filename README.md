@@ -141,3 +141,56 @@ For example:
 ```
 
 It will be used to add reusable utilities and components that aren't tied to a specific route in the app.
+
+## Routing
+
+Sveltekit has a file system based routing. Meaning the URL for users are determined by the file naming and structure in the routes dir.
+
+Routes can be **dynamic** (surrounded by square brackets) such as a username pulled from a database. The framework identifies this as a URL parameter which you can access elsewhere in the framework like when fetching data.
+
+### Page Store
+
+Sometimes you want to access user data on the client side instead of the server. This can be done with a built in `$page` store (i.e. `$page.params.username`).
+
+The page store contains the page store ($page), the route params (params), and additional info from the router. Anytime the route changes the store value will update reactively.
+
+### Svelte Filenames
+
+Svelte has four special filenames prefixed with a + symbol. These are **_page_**, **_layout_**, **_server_**, and **_error_**. These files will end in either **_.svelte_**, **_.ts_**, or **_.server.ts_**. The most common file is the `page.svelte` file. The page file is what is rendered when a user navigates to that URL.
+
+On the initial load of the page it will be rendered on the **_server_**, which is good for SEO because bots need fully rendered HTML to understand the page.
+
+After the initial page load Svelte will **_hydrate_** the page, the client side JS will take over and we will be able to render subsequent navigations client side. This is faster and more efficient as well as better user experience (UX).
+
+#### +page.svelte
+
+- **used for**: building UI.
+- **runs on**: client & server.
+
+#### +page.ts
+
+- **used for**: data fetching.
+- **runs on**: client & server.
+
+#### +page.server.ts
+
+- **used for**: data fetching.
+- **runs on**: server only.
+
+#### +layout.ts
+
+Same group of patterns for +layout.ts. These work the same as pages, but their UI can be shared among multiple child routes.
+
+Two more file types:
+
+#### +server.ts
+
+- **used for**: API routes (Routes that don't return HTML, but JSON or another response type).
+- **runs on**: server only.
+
+#### +error.svelte
+
+Fallback for a page when data fetching fails.
+
+- **used for**: API routes.
+- **runs on**: server only.
