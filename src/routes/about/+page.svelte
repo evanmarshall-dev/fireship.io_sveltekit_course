@@ -7,6 +7,8 @@
 	export let data;
 </script>
 
+{data.text}
+
 <!-- Often you have to extract your code into a smaller component. -->
 <!-- This can be done by highlighting the code and selecting 'extract component'. -->
 <!-- This will move the code over while importing it into the existing file. -->

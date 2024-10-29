@@ -194,3 +194,68 @@ Fallback for a page when data fetching fails.
 
 - **used for**: API routes.
 - **runs on**: server only.
+
+## Data Fetching
+
+There are three ways to fetch data:
+
+1. Client Side
+2. Server Side
+3. Hybrid of Both
+
+### Client Side Data Fetching
+
+With client side everything happens in the browser after the initial page load. This is the typical way to do things in svelte without the kit. The trade off is due to happening on the client side the data won't be rendered on the server making it invisible to bots. Usually you only do client side fetching for data not public (i.e. content for an authenticated user).
+
+```svelte
+<script lang="ts">
+  <!-- Import onMount lifecycle hook. -->
+	import { onMount } from 'svelte';
+
+  <!-- Set some state on the components like a todo. -->
+	let todo = null;
+
+  <!-- Once the component is mounted we make a cal to fetch to an API endpoint somewhere. -->
+  <!-- Then set response json as the state on the component. -->
+	onMount(async () => {
+		todo = await fetch('.../todos').then((res) => res.json());
+	});
+
+  <!-- If using your own database, you will need separate server side code to create the API endpoint. -->
+  {todo.title}
+</script>
+```
+
+### Server Side Data Fetching
+
+All data will be maintained on a secure back end environment then used in the HTML when rendered for the initial page load.
+
+To create this we will create a `page.server.js` file in the same dir as the component that needs that data. This file exports a **_load_** function that will be executed when a user navigates to that page. This function returns an object of data that is accessible automatically to the svelte component.
+
+Inside this function you can do many things on the back end such as fetch date from an API, fetch data from a Firebase admin SDK, access environment variables, send raw SQL to a relational database, or access files from the filesystem. This code will not be bundled with your client side code and will only run on the server.
+
+Now back in the page component you will see that we have access to this data as a type of page data. Sveltekit generates this interface automatically, which provides end-to-end type safety from the back end to the front end. There is intellisense on the data.
+
+### Hybrid Approach
+
+Most times you do not need a server to do data fetching. Instead of creating a page.server.js file you create a page.ts file. This code can run both client side and server side.
+
+On the initial page load it will run server side, but on any subsequent navigation it will run on client side, which makes it faster and not use unnecessary server resources, but at the same time search bots will get the fully rendered HTML. The downside is because it runs client side you won't have access to things like environment variables, firebase admin SDK, etc. This is ultimately the best way to fetch data, especially if it is public like from a CMS or some other API accessible with fetch.
+
+Another great feature for Sveltekit is that we can access fetched data from the **_page store_**. This is useful when you have deeply nested components because you can used that fetched data anywhere on the page. You cannot do this in other frameworks like React without _prop drilling_ or using extra state management system.
+
+```svelte
+<script lang="ts">
+  import type {PageData} from "./$types";
+
+  export let data: PageData;
+
+  <!-- Fetched data from page store. -->
+  import {page} from "$app/stores";
+</script>
+
+{data.text}
+
+<!-- Accessed fetched data as a deeply nested component. -->
+{$page.data.text}
+```
