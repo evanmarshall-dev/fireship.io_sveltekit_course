@@ -108,7 +108,7 @@ If you are building a full blown web app you can use Sveltekit to implement **_s
 
 ## Create a Sveltekit app
 
-`npm create svelte@latest nameofapp` or for interactive setup run `npx sv create nameofapp`.
+`npm create svelte@latest name-of-app` or for interactive setup run `npx sv create name-of-app`.
 
 Then you CD into the app created above and run pnpm run dev.
 
@@ -258,4 +258,56 @@ Another great feature for Sveltekit is that we can access fetched data from the 
 
 <!-- Accessed fetched data as a deeply nested component. -->
 {$page.data.text}
+```
+
+## Navigation
+
+In Sveltekit you can handle navigation the same as plain HTML, with the anchor tag.
+
+You simply can add a route within an anchor tag and Sveltekit will auto intercept this route and use client side routing to grab that page.
+
+It also does not do a full page reload, but re-renders the HTML with JS client side.
+
+You will also notice in the root app.html there is an attribute on the body tag called `data-sveltekit-preload-data` with a value of `hover`. This tells the framework to auto prefetch and prerender a page whenever a user hovers over a link. Sometimes this behaviour is not desirable (i.e. A very expensive data fetching operation/computation on the backend, you might want to wait for an official click). You can simply disable this behaviour by removing the attribute above from the body tag and add it to other parts of the app as needed.
+
+### Link Customization
+
+There are a bunch of ways to customize a link in Sveltekit. For example you might want to force a page reload on click by using the attribute `data-sveltekit-reload`.
+
+Sometimes regular links are not enough to handle all of your navigation needs. The framework provides several utilities for programmatic navigation. The most basic utility is `goto()`, which allows you to navigate to a specific link from your JS code. For example, you could use this to implement an auto play feature like "play next video after 10 seconds".
+
+Sometimes you might want to run code before or after a user navigates to a page. You can do this by using `beforeNavigate()` and `afterNavigate()`. These give us access to a navigation object then we will run the callback function before it actually navigates (intercept navigation) to that page.
+
+We can also invalidate the cache when it comes to data fetching (`invalidate()`)
+
+```svelte
+<script lang="ts">
+	import {
+		afterNavigate,
+		beforeNavigate,
+		disableScrollHandling,
+		goto,
+		invalidate,
+		invalidateAll,
+		preloadCode,
+		preloadData
+	} from '$app/navigation';
+
+  <!-- goto() example. -->
+	function handleClick(event: MouseEvent) {
+		event.preventDefault();
+		showCoolAnimation();
+		goto('/about');
+	}
+
+  <!-- beforeNavigate and afterNavigate example. -->
+  beforeNavigate((navigation) => {
+    if(!admin) {
+      navigation.cancel()
+    }
+  })
+
+  <!-- invalidate example. -->
+  invalidate("./about")
+</script>
 ```
