@@ -209,7 +209,7 @@ Fallback for a page when data fetching fails.
 
 ---
 
-[Ultimate Web Preformance Guide](https://www.youtube.com/watch?v=0fONene3OIA)
+[Ultimate Web Performance Guide](https://www.youtube.com/watch?v=0fONene3OIA)
 
 ## Data Fetching
 
@@ -444,3 +444,25 @@ Bottom line: The server file on Sveltekit allows you to easily create your own A
 - Click send.
 
 ## Actions
+
+We know how to bring data into the page, but what if we want to change or mutate data in the future (i.e. When a user submits a form)?
+
+You can do it like previous lectures with API endpoints, but it is easier to use **_actions_**. With actions no JS is required and simplifies the code.
+
+In a `+page.server.ts` add the following code. We will write up a load function and use cookies to persist some data on the server (Normally you wouldn't use cookies to do this and would be fetching data from a database or API). We store a cookie name `boatName` and return it from the load function.
+
+In `+page.svelte` we will be adding a form which posts to server and changes name of `boatName`. The "name" attribute on the form input will have to be referenced on the server.
+
+Now we can go back to server file and export an object for **_actions_** that has one or more functions attached to it. The **_default_** action is used if you only have one action on the page, which will be triggered when the form with the POST method is triggered.
+
+To update data on the server we need to access first the form data. On the request we have the `formData()` object, which is a web standard that allows us to get any value from the form using the **_get_** method with the **_name_** on the input.
+
+We then set cookies on `boatName` but in real life you would update a database at this point. This does a full page reload when you submit a boat name. To help with this we can import **_enhance_** from Svelte forms.
+
+You can add a second action to the same page called **_capitalize_**. Multiple actions on the same page are called **_named_** actions. When you used named actions you can no longer use the **_default_** action. The capitalize action will take whatever form we have on the backend and change it to all capitals.
+
+### Enhance
+
+You can do more with enhance than fix the full page reload.
+
+You can also access form data client side, access status client side for error handling and validation, etc.
