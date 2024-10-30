@@ -2,6 +2,10 @@
 
 ## Svelte in 100 Seconds
 
+[Official Svelte Tutorial](https://svelte.dev/tutorial/svelte/welcome-to-svelte)
+
+[Sveltekit First Look](https://www.youtube.com/watch?v=uEJ-Rnm2yOE)
+
 ### Section 1: Intro
 
 A Javascript (JS) tool for building UI components, similar to React, Angular or Vue. Unlike the rest of the JS frameworks though, instead of sending a JS runtime to the browser, it is a **_compiler_**. It takes the code you write (declarative code) and converts it into code that works with native browser APIs (imperative code). This creates highly performant code in a small package.
@@ -108,6 +112,12 @@ If you are building a full blown web app you can use Sveltekit to implement **_s
 
 ## Create a Sveltekit app
 
+[v4 Source Code for Course](https://github.com/fireship-io/fkit-course)
+
+[v5 Source Code for Course](https://github.com/fireship-io/fkit-course/tree/svelte5)
+
+[Sveltekit Docs](https://svelte.dev/)
+
 `npm create svelte@latest name-of-app` or for interactive setup run `npx sv create name-of-app`.
 
 Then you CD into the app created above and run pnpm run dev.
@@ -143,6 +153,8 @@ For example:
 It will be used to add reusable utilities and components that aren't tied to a specific route in the app.
 
 ## Routing
+
+[Sveltekit Routing Docs](https://svelte.dev/docs/kit/routing)
 
 Sveltekit has a file system based routing. Meaning the URL for users are determined by the file naming and structure in the routes dir.
 
@@ -194,6 +206,10 @@ Fallback for a page when data fetching fails.
 
 - **used for**: API routes.
 - **runs on**: server only.
+
+---
+
+[Ultimate Web Preformance Guide](https://www.youtube.com/watch?v=0fONene3OIA)
 
 ## Data Fetching
 
@@ -314,6 +330,8 @@ We can also invalidate the cache when it comes to data fetching (`invalidate()`)
 
 ## Rendering && Caching
 
+[Rendering Patterns for Web Apps](https://www.youtube.com/watch?v=Dkx5ydvtpCA)
+
 Most full stack JS frameworks there are three ways to render the website:
 
 1. **Client Side**: Like a single page app where all rendering happens in the browser.
@@ -398,3 +416,31 @@ export const load = (async ({ setHeaders }) => {
 ```
 
 It is not important to worry about caching in dev, but the closer you get to production you might notice you have load functions that are requesting data arbitrarily and then you want to start thinking about caching for efficiency.
+
+## API Routes
+
+[RESTful APIs](https://www.youtube.com/watch?v=-MTSQjw5DrM)
+
+When you have a route where you do not want to return an HTML page, but instead a JSON payload, file, or some other response type.
+
+For example, you may be developing a SaaS app that provides a full RESTful API for users that want to access their data as JSON. Or you just want to run some server side code with fetch calls that use different HTTP verbs like POST, PUT, DELETE, etc.
+
+### The Request
+
+See example `+server.js` file in `api/dog` dir. When you export a function you need to keep two things in mind: The **incoming** request and the **outgoing** response. The request data is available as an argument to the function and provides access to things like cookies, URL parameter, and the request object itself, which might include additional data like a **_request body_**. The event (e) also has **_fetch_** function attached to it that allows you to make a fetch call directly from the backend that will auto inherit **cookie** and **authorization headers**.
+
+### The Response
+
+To create a response you simply return a response object (This is standard practice except for Svelte). The previous option is not really used in Svelte because Svelte provides a few helper functions. In most cases API endpoints return JSON that we can auto serialize as JSON, and return the proper headers with the JSON function. You just need to provide it with a JS object and it handles the rest.
+
+For error handling Sveltekit provides a custom error function that takes an **_HTTP status code_** (i.e. 401) and an **_error message_** as arguments.
+
+Bottom line: The server file on Sveltekit allows you to easily create your own API endpoints. However, in most cases they are not necessary because we already have our page files to do our data fetching and **_actions_** to handle **_server side mutations_**.
+
+### Thunder Client Instructions
+
+- When testing locally you will want to use the `[::1]` syntax for the `localhost` URL (i.e. `http://[::1]:5173/api/dog`) instead of using localhost directly.
+- Then select the HTTP verb (i.e. POST).
+- Click send.
+
+## Actions
