@@ -311,3 +311,90 @@ We can also invalidate the cache when it comes to data fetching (`invalidate()`)
   invalidate("./about")
 </script>
 ```
+
+## Rendering && Caching
+
+Most full stack JS frameworks there are three ways to render the website:
+
+1. **Client Side**: Like a single page app where all rendering happens in the browser.
+2. **Server Side (SSR)**: Initial render happens on the server then the client side router takes over on all subsequent page loads. This is the **_default_** behaviour in Sveltekit and is ideal when you have a page where the data changes often because the data will be re-fetched for each new request to that page.
+3. **Pre-Rendering**: The page is rendered on the server in advance at build time. This is ideal when you need to fetch data that does not change very often because you can render the page once then cache it on a cdn for max performance.
+
+Sveltekit allows us to use all of the above rendering strategies simultaneously in the same app. If we want to prerender a page we do this by adding a variable called **_prerender_** set to true in `page.ts` or `page.server.ts`. This tells the framework to render all the HTML at build time instead of deploying an endpoint to a server somewhere. You can then cache the page on a cdn for performance and you are not using your server to fetch data arbitrarily (caching). The disadvantage is that if the data changes the pre-rendered page will not reflect it until you rebuild and deploy the site.
+
+```svelte
+import type {PageLoad} from "./$types";
+
+<!-- Prerender the page. -->
+export const prerender = true;
+
+export const load = (async () => {
+  const res = await fetch("someAPI").then(res => res.json());
+  const data = await res.json();
+
+  return data;
+}) satisfies PageLoad;
+```
+
+In some cases you might want to prerender your entire site, which can be achieved with the **_static adapter_**.
+
+If we set the server side rendering to false then it tells Sveltekit to only render this page client side, but there is **not** many good use cases for this.
+
+```svelte
+import type {PageLoad} from "./$types";
+
+<!-- Make page render client side. -->
+export const ssr = false;
+
+export const load = (async () => {
+  const res = await fetch("someAPI").then(res => res.json());
+  const data = await res.json();
+
+  return data;
+}) satisfies PageLoad;
+```
+
+There is also an option for **_csr_**, which when set to false will disable hydration and the router on that page. This means less JS is needed for the end user, which results in faster page loads. This is a good option for basic pages such as an about page with no interactivity.
+
+```svelte
+import type {PageLoad} from "./$types";
+
+<!-- Disable hydration and router on this page. -->
+export const csr = false;
+
+export const load = (async () => {
+  const res = await fetch("someAPI").then(res => res.json());
+  const data = await res.json();
+
+  return data;
+}) satisfies PageLoad;
+```
+
+If you have a load function like above that keeps fetching the same data over and over again, then this increases your infrastructure costs and slow down the web app. You can address the problem by setting cache control headers in the load function. We have access to a `setHeaders()` utility that allows us to do things like set cache control headers. Setting cache control to 60 seconds for example (below) means that we do not make a call to an API or database anymore than once per minute.
+
+When fetching from an API it might have it's own cache control settings
+
+```svelte
+import type {PageLoad} from "./$types";
+
+<!-- Set cache control headers in load function. -->
+export const load = (async ({ setHeaders }) => {
+  const res = await fetch("someAPI").then(res => res.json());
+  const data = await res.json();
+
+  <!-- Set header to max age of 60 seconds which means results of the function will be cached for 60 seconds. -->
+  <!-- setHeaders({
+    "cache-control": "max-age=60",
+  }); -->
+
+  <!-- Use API cache control settings with set headers to mirror API settings on the load function. -->
+  setHeaders({
+    age: res.headers.get("age"),
+    "cache-control": res.headers.get("cache-control")
+  });
+
+  return data;
+}) satisfies PageLoad;
+```
+
+It is not important to worry about caching in dev, but the closer you get to production you might notice you have load functions that are requesting data arbitrarily and then you want to start thinking about caching for efficiency.
